@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aadhaar Verification</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>Aadhaar Verification</h2>
+        <form method="POST" action="{% url 'aadhaar_verification' %}">
+            {% csrf_token %}
+            <label for="aadhaar_number">Aadhaar Number:</label>
+            <input type="text" id="aadhaar_number" name="aadhaar_number" required>
+            
+            <button type="submit">Send OTP</button>
+        </form>
+        
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
