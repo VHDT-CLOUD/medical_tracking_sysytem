@@ -1,78 +1,145 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background: linear-gradient(90deg, #007bff, #00c6ff);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: linear-gradient(90deg, #0056b3, #0099cc);
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Register</h2>
-
-        {% if messages %}
-            <div class="messages">
-                {% for message in messages %}
-                    <p class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        <form method="POST" action="{% url 'register' %}">
+        <form method="POST" action="{% url 'aadhaar_verification' %}">
             {% csrf_token %}
-            
-            <label for="role">Select Role:</label>
-            <select id="role" name="role" onchange="toggleForm()">
+            <label for="role">Register as:</label>
+            <select id="role" name="role" required>
+                <option value="">Select Role</option>
                 <option value="patient">Patient</option>
                 <option value="doctor">Doctor</option>
             </select>
 
-            <!-- Patient Registration -->
-            <div id="patient-form">
-                <label for="aadhaar">Aadhaar Number:</label>
-                <input type="text" id="aadhaar" name="aadhaar" placeholder="Enter Aadhaar" required>
+            <label for="aadhaar">Aadhaar Number:</label>
+            <input type="text" id="aadhaar" name="aadhaar_number" required maxlength="12" pattern="\d{12}">
 
-                <label for="phone">Phone Number:</label>
-                <input type="text" id="phone" name="phone" placeholder="Enter Phone Number" required>
+            <button type="button" id="sendOtp">Send OTP</button>
 
-                <button type="button" onclick="sendOTP()" class="btn-spacing">Get OTP</button>
-                
-                <div id="otp-section" style="display: none;">
-                    <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
-                    <button type="button" onclick="verifyOTP()" class="btn-spacing">Verify OTP</button>
-                </div>
+            <div id="otp_section" class="hidden">
+                <label for="otp">Enter OTP:</label>
+                <input type="text" id="otp" name="otp" maxlength="6" pattern="\d{6}">
+                <button type="button" id="verifyOtp">Verify OTP</button>
             </div>
 
-            <!-- Doctor Registration -->
-            <div id="doctor-form" style="display: none;">
-                <label for="doc_name">Name:</label>
-                <input type="text" id="doc_name" name="doc_name" placeholder="Enter Name" required>
+            <label for="phone">Phone:</label>
+            <input type="text" id="phone" name="phone" required pattern="\d{10}" maxlength="10">
 
-                <label for="doc_email">Email:</label>
-                <input type="email" id="doc_email" name="doc_email" placeholder="Enter Email" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
 
-                <label for="doc_hospital">Hospital ID:</label>
-                <input type="text" id="doc_hospital" name="doc_hospital" placeholder="Enter Hospital ID" required>
-            </div><br>
+            <label for="name">Full Name:</label>
+            <input type="text" id="name" name="name" required>
 
-            <!-- Register Button -->
-           <br><div class="btn-container">
-                <button type="submit" class="btn-spacing">Register</button>
+            <div id="doctor_fields" class="hidden">
+                <label for="specialization">Specialization:</label>
+                <input type="text" name="specialization">
             </div>
+
+            <div id="patient_fields" class="hidden">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" name="dob">
+            </div>
+
+            <button type="submit" id="registerButton" class="hidden">Register</button>
         </form>
-
-        <p class="login-link">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
     </div>
 
-    <script src="{% static 'js/script.js' %}"></script>
     <script>
-        function toggleForm() {
-            let role = document.getElementById("role").value;
-            document.getElementById("patient-form").style.display = role === "patient" ? "block" : "none";
-            document.getElementById("doctor-form").style.display = role === "doctor" ? "block" : "none";
+    document.getElementById("sendOtp").addEventListener("click", function() {
+        let aadhaar = document.getElementById("aadhaar").value;
+        if (!(/^\d{12}$/.test(aadhaar))) {
+            alert("Enter a valid 12-digit Aadhaar number.");
+            return;
         }
-    </script>
+        // Send OTP request
+        fetch("/api/request-otp/", {
+            method: "POST",
+            body: new URLSearchParams({ "aadhaar_number": aadhaar }),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert("OTP sent to registered mobile number.");
+                document.getElementById("otp_section").classList.remove("hidden");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+    document.getElementById("verifyOtp").addEventListener("click", function() {
+        let otp = document.getElementById("otp").value;
+        let aadhaar = document.getElementById("aadhaar").value;
+        if (!(/^\d{6}$/.test(otp))) {
+            alert("Enter a valid 6-digit OTP.");
+            return;
+        }
+        // Verify OTP request
+        fetch("/api/verify-otp/", {
+            method: "POST",
+            body: new URLSearchParams({ "aadhaar_number": aadhaar, "otp": otp }),
+            headers: { "Content-Type": "application/x-www-form-urlencoded" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Invalid OTP. Try again.");
+            } else {
+                alert("OTP verified successfully!");
+                document.getElementById("registerButton").classList.remove("hidden");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+</script>
 </body>
 </html>

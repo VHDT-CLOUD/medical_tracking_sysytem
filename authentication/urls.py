@@ -1,7 +1,13 @@
-from django.urls import path
-from .views import send_otp, verify_otp
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
-    path("aadhaar/", send_otp, name="send_otp"),
-    path("verify-otp/", verify_otp, name="verify_otp"),
+    path('admin/', admin.site.urls),
+    path('accounts/', include('medical_tracking_app.urls')),  # Correct the app name here
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

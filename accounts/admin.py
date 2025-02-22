@@ -1,31 +1,31 @@
 from django.contrib import admin
 from .models import CustomUser, Hospital, Patient, Doctor, MedicalRecord, AadhaarOTP
 
-@admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ("aadhaar", "is_staff", "is_active", "date_joined")
-    search_fields = ("aadhaar",)
+    list_display = ('aadhaar_number', 'username', 'email', 'phone', 'is_doctor', 'is_patient')
 
-@admin.register(Hospital)
-class HospitalAdmin(admin.ModelAdmin):
-    list_display = ("name", "phone")
-    search_fields = ("name",)
-
-@admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ("name", "aadhaar_number", "email", "phone")
-    search_fields = ("name", "aadhaar_number")
+    list_display = ('name', 'get_aadhaar', 'email', 'phone', 'hospital')
 
-@admin.register(Doctor)
+    def get_aadhaar(self, obj):
+        return obj.user.aadhaar_number
+    get_aadhaar.short_description = 'Aadhaar Number'
+
 class DoctorAdmin(admin.ModelAdmin):
-    list_display = ("name", "specialization", "hospital")
-    search_fields = ("name", "specialization")
+    list_display = ('name', 'email', 'phone', 'hospital', 'specialization')
 
-@admin.register(MedicalRecord)
+class HospitalAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location', 'phone')
+
 class MedicalRecordAdmin(admin.ModelAdmin):
-    list_display = ("patient", "doctor", "hospital", "created_at")
-    search_fields = ("patient_name", "doctor_name")
+    list_display = ('patient', 'doctor', 'hospital', 'diagnosis', 'created_at')
 
-@admin.register(AadhaarOTP)
 class AadhaarOTPAdmin(admin.ModelAdmin):
-    list_display = ("aadhaar_number", "otp", "expires_at")
+    list_display = ('aadhaar_number', 'otp', 'created_at')
+
+admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Hospital, HospitalAdmin)
+admin.site.register(Patient, PatientAdmin)
+admin.site.register(Doctor, DoctorAdmin)
+admin.site.register(MedicalRecord, MedicalRecordAdmin)
+admin.site.register(AadhaarOTP, AadhaarOTPAdmin)

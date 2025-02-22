@@ -1,16 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>OTP Verification</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP</title>
 </head>
 <body>
-    <h2>Enter the OTP Sent to Your Aadhaar</h2>
-    <form method="post">
-        {% csrf_token %}
-        <input type="text" name="otp" placeholder="Enter OTP" required>
-        <button type="submit">Verify OTP</button>
-    </form>
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}
+    <div>
+        <h2>OTP Verification</h2>
+        <label for="aadhaar">Enter Aadhaar:</label>
+        <input type="text" id="aadhaar" required>
+        <button onclick="sendOTP()">Send OTP</button>
+
+        <div id="otp_section" style="display:none;">
+            <label for="otp">Enter OTP:</label>
+            <input type="text" id="otp" required>
+            <button onclick="verifyOTP()">Verify OTP</button>
+        </div>
+
+        <p id="message"></p>
+    </div>
+
+    <script>
+        function sendOTP() {
+            var aadhaar = document.getElementById("aadhaar").value;
+
+            fetch("/aadhaar-verification/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "aadhaar_number=" + aadhaar
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
+                    document.getElementById("otp_section").style.display = "block";
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function verifyOTP() {
+            var otp = document.getElementById("otp").value;
+
+            fetch("/verify-otp/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "otp=" + otp
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("OTP Verified Successfully! Redirecting...");
+                    window.location.href = data.redirect;
+                } else {
+                    alert("Invalid OTP. Try again.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
 </body>
+</html>

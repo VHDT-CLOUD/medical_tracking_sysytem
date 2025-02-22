@@ -1,82 +1,85 @@
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, login, logout
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import logout  # Import the logout function
+import random
 import json
+from .models import AadhaarOTP
+from django.utils.timezone import now
+from datetime import timedelta
 
-@csrf_exempt
 def index(request):
-    return JsonResponse({"message": "Welcome to the accounts app!"})
+    return render(request, 'index.html')
 
-def user_login(request):
+def aadhaar_verification(request):
+    if request.method == 'POST':
+        aadhaar_number = request.POST.get('aadhaar_number')
+        # Implement your Aadhaar verification logic here
+        # For example, check if the Aadhaar number is valid and verified
+        # If verified, redirect to the dashboard
+        return redirect('accounts:dashboard')
+    return render(request, 'aadhaar_verification.html')
+
+def verify_otp(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp')
+        stored_otp = request.session.get('otp')
+
+        if entered_otp == stored_otp:
+            return redirect('accounts:dashboard')
+
+        return render(request, 'verify_otp.html', {'error': 'Invalid OTP'})
+    
+    otp = str(random.randint(100000, 999999))
+    request.session['otp'] = otp
+    return render(request, 'verify_otp.html')
+
+def send_otp(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            aadhaar = data.get("aadhaar")
-            password = data.get("password")
+            aadhaar_number = data.get("aadhaar_number")
+        except (json.JSONDecodeError, KeyError):
+            return JsonResponse({"error": "Invalid request data"}, status=400)
 
-            user = authenticate(request, username=aadhaar, password=password)
-            if user is not None:
-                login(request, user)
-                return JsonResponse({"message": "Login successful"}, status=200)
-            else:
-                return JsonResponse({"error": "Invalid Aadhaar or password"}, status=400)
+        if not aadhaar_number or len(aadhaar_number) != 12 or not aadhaar_number.isdigit():
+            return JsonResponse({"error": "Invalid Aadhaar number"}, status=400)
 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+        otp = AadhaarOTP.generate_otp()
+        AadhaarOTP.objects.update_or_create(
+            aadhaar_number=aadhaar_number,
+            defaults={"otp": otp, "expires_at": now() + timedelta(minutes=5)}
+        )
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
-
-@csrf_exempt
-def user_register(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            aadhaar = data.get("aadhaar")
-            password = data.get("password")
-            # Implement your registration logic here
-
-            return JsonResponse({"message": "Registration successful"}, status=201)
-
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format"}, status=400)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
-
-def user_logout(request):
-    if request.method == "POST":
-        logout(request)
-        return JsonResponse({"message": "Logout successful"}, status=200)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+        print(f"Mock OTP Sent: {otp}")
+        return JsonResponse({"message": "OTP sent successfully", "otp": otp})
 
 def dashboard(request):
-    # Implement your dashboard logic here
-    return JsonResponse({"message": "Welcome to your dashboard!"})
+    return render(request, 'dashboard.html')
 
-@csrf_exempt
-def request_otp(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            aadhaar = data.get("aadhaar")
-            # Implement OTP request logic here
-            return JsonResponse({"message": "OTP sent successfully"}, status=200)
+def login_view(request):
+    if request.method == 'POST':
+        aadhaar_number = request.POST.get('aadhaar_number')
+        request.session['aadhaar_number'] = aadhaar_number
+        return redirect('accounts:verify_otp')
+    return render(request, 'login.html')
 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+def logout_view(request):
+    logout(request)  # Call the imported logout function
+    return redirect('accounts:login')  # Redirect to login after logout
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+def register_view(request):
+    if request.method == 'POST':
+        aadhaar_number = request.POST.get('aadhaar_number')
+        
+        # Check if the Aadhaar number is valid (e.g., length and digit check)
+        if not aadhaar_number or len(aadhaar_number) != 12 or not aadhaar_number.isdigit():
+            return render(request, 'register.html', {'error': 'Invalid Aadhaar number'})
 
-@csrf_exempt
-def verify_otp(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            otp = data.get("otp")
-            # Implement OTP verification logic here
-            return JsonResponse({"message": "OTP verified successfully"}, status=200)
+        # Assuming you have a User model where you want to save the Aadhaar number
+        # Save the Aadhaar number to the database
+        # Example: User.objects.create(aadhaar_number=aadhaar_number, ...other_fields)
 
-        except json.JSONDecodeError:
-            return JsonResponse({"error": "Invalid JSON format"}, status=400)
-
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+        # Redirect directly to the dashboard after successful registration
+        return redirect('accounts:dashboard')
+    
+    return render(request, 'register.html')

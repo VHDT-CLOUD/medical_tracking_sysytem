@@ -1,31 +1,16 @@
 {% load static %}
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Health Tracking</title>
+    <title>Home</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-
-    <header>
-        <h1>Secure Health Tracking System</h1>
-        <nav>
-           <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'register' %}">Register</a>
-        </nav>
-    </header>
-
-    <main>
-        <h2>Welcome to Our Secure Health Tracking System</h2>
-        <p>Register and track medical records securely.</p>
-    </main>
-
+    <div class="container">
+        <h2>Welcome to Medical Tracking System</h2>
+        <p>Please <a href="{% url 'accounts:login' %}">Login</a> or <a href="{% url 'accounts:register' %}">Register</a> to continue.</p>
+    </div>
 </body>
 </html>

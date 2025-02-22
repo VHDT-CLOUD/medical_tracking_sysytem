@@ -1,25 +1,14 @@
-from pathlib import Path
 import os
-from dotenv import load_dotenv
-import django_heroku
-django_heroku.settings(locals())
-import dj_database_url
+from pathlib import Path
 
-DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True) # type: ignore
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load environment variables
-load_dotenv()
+SECRET_KEY = 'your-secret-key'
 
-# Base directory
-BASE_DIR = Path(__file__).resolve().parent.parent  
+DEBUG = True
 
-# Security Settings
-SECRET_KEY = os.getenv("SECRET_KEY", "your-default-secret-key")
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-
-# Application Definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,34 +16,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Third-party apps
-    'corsheaders',
-    'rest_framework',
-
-    # Local apps
-    'accounts',
     'medical_tracking',
+    'accounts',  # Corrected app name
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS Middleware should be early
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-ROOT_URLCONF = 'medical_tracking.urls'
+ROOT_URLCONF = 'medical_tracking.urls'  # Corrected app name
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'accounts/templates'],  
+        'DIRS': [os.path.join(BASE_DIR ,'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,24 +48,21 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'medical_tracking.wsgi.application'
 
-# Database Configuration
+WSGI_APPLICATION = 'medical_tracking.wsgi.application'  # Corrected app name
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'medical_tracking'),
-        'USER': os.getenv('DB_USER', 'root'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'hema@2004'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '3306'),
+        'NAME': 'medical_tracking',
+        'USER': 'root',
+        'PASSWORD': 'hema@2004',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
-# Authentication Configuration
-AUTH_USER_MODEL = "accounts.CustomUser"
-
-# Password Validators
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -92,26 +70,15 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
+
 TIME_ZONE = 'UTC'
+
 USE_I18N = True
+
 USE_TZ = True
 
-# Static & Media Files
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / "media"
-
-# CORS Configuration
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:8000",
-]
-
-# Default Primary Key Type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

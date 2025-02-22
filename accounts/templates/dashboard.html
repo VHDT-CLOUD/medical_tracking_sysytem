@@ -8,19 +8,21 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
+    <div class="container">
+        <h2>Dashboard</h2>
+        <p>Welcome, {{ user.aadhaar }}</p>
+        
+        <h3>Medical Records</h3>
+        <ul>
+            {% for record in medical_records %}
+                <li>{{ record.date }} - {{ record.description }}</li>
+            {% empty %}
+                <li>No records found</li>
+            {% endfor %}
+        </ul>
 
-    <header>
-        <h1>Dashboard</h1>
-        <form action="{% url 'logout' %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
-    </header>
+       <a href="{% url 'accounts:logout' %}">Logout</a>
 
-    <main>
-        <h2>Welcome, {{ user.username }}</h2>
-    </main>
-
-    <script src="{% static 'js/script.js' %}"></script>
+    </div>
 </body>
 </html>
