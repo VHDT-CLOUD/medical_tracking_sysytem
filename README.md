@@ -1,88 +1,109 @@
-# Secure Medical Tracking System
+# Medical Tracking System
 
-A hospital login system for a Secure Medical Tracking System using Node.js/Express, MySQL, HTML, CSS, and JavaScript.
+A comprehensive medical tracking system built with React, Django, and Material-UI.
 
 ## Features
 
-- Hospital login system
-- Patient list view
-- Patient dashboard with medical history
-- Add medical records functionality
-- Session management for security
+- Patient management
+- Medical history tracking
+- User authentication
+- Responsive design
+- Real-time updates
 
-## Prerequisites
+## Tech Stack
+
+- Frontend: React, Material-UI, Redux Toolkit
+- Backend: Django, Django REST Framework
+- Database: PostgreSQL
+- Deployment: Netlify (Frontend), Railway/Heroku (Backend)
+
+## Getting Started
+
+### Prerequisites
 
 - Node.js (v14 or higher)
-- MySQL (v5.7 or higher)
-- npm (Node Package Manager)
+- Python (v3.8 or higher)
+- PostgreSQL
 
-## Setup Instructions
+### Frontend Setup
 
-### 1. Database Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 
-Create a MySQL database named `medical_tracking`:
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```sql
-CREATE DATABASE medical_tracking;
-```
+3. Create a `.env` file with the following variables:
+   ```
+   REACT_APP_API_URL=http://localhost:8000/api
+   ```
 
-The application will automatically create the necessary tables on startup.
+4. Start the development server:
+   ```bash
+   npm start
+   ```
 
-### 2. Install Dependencies
+### Backend Setup
 
-```bash
-npm install
-```
+1. Create and activate a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-### 3. Configure Database Connection
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-The application is configured to connect to MySQL with the following default settings:
-- Host: localhost
-- User: root
-- Password: (empty)
-- Database: medical_tracking
+3. Create a `.env` file with the following variables:
+   ```
+   DJANGO_SECRET_KEY=your-secret-key
+   DJANGO_DEBUG=True
+   DATABASE_URL=postgres://user:password@localhost:5432/medical_tracking
+   ```
 
-If your MySQL configuration is different, update the connection details in `server.js`.
+4. Run migrations:
+   ```bash
+   python manage.py migrate
+   ```
 
-### 4. Start the Application
+5. Start the development server:
+   ```bash
+   python manage.py runserver
+   ```
 
-```bash
-npm start
-```
+## Deployment
 
-The server will start on http://localhost:3000
+### Frontend (Netlify)
 
-## Usage
+1. Install Netlify CLI:
+   ```bash
+   npm install -g netlify-cli
+   ```
 
-### Default Login Credentials
+2. Deploy:
+   ```bash
+   npm run deploy
+   ```
 
-The application creates a default hospital user on first run:
-- Email: hospital@example.com
-- Password: hospitalpass789
+### Backend (Railway/Heroku)
 
-### Accessing the Application
+1. Install the respective CLI
+2. Follow the platform-specific deployment instructions
 
-1. Open a web browser and navigate to http://localhost:3000
-2. Log in using the default credentials
-3. View the list of patients
-4. Click on a patient to view their details and medical history
-5. Add new medical records as needed
+## Contributing
 
-## Project Structure
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-- `server.js` - Main application file with Express server and MySQL connection
-- `public/` - Static files directory
-  - `css/style.css` - Main stylesheet
-  - `hospital-login.html` - Hospital login page
-  - `hospital-patient-list.html` - Patient list page
-  - `patient-dashboard.html` - Patient details and medical history page
+## License
 
-## Security Notes
-
-For simplicity, this implementation stores passwords in plain text. In a production environment, you should:
-
-1. Use password hashing (e.g., bcrypt)
-2. Implement HTTPS
-3. Add input validation and sanitization
-4. Use environment variables for sensitive information
-5. Implement proper error handling and logging
+This project is licensed under the MIT License - see the LICENSE file for details.

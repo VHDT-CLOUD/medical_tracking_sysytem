@@ -32,7 +32,7 @@
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "predeploy": "npm run build",
-    "deploy": "vercel --prod"
+    "deploy": "netlify deploy --prod"
   },
   "eslintConfig": {
     "extends": [
