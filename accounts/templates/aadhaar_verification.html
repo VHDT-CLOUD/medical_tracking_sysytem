@@ -1,63 +1,27 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aadhaar Verification</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #acb6e5);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-            width: 350px;
-            text-align: center;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        button {
-            background: linear-gradient(90deg, #007bff, #00c6ff);
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background: linear-gradient(90deg, #0056b3, #0099cc);
-            transform: scale(1.05);
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+    <script src="{% static 'js/script.js' %}"></script>
 </head>
 <body>
     <div class="container">
         <h2>Aadhaar Verification</h2>
+        <label for="aadhaar">Enter Aadhaar:</label>
+        <input type="text" id="aadhaar" required>
+        <button onclick="requestOTP()">Send OTP</button>
 
-        <form method="POST" action="{% url 'accounts:aadhaar_verification' %}">
-            {% csrf_token %}
-            <label for="aadhaar">Enter Aadhaar Number:</label>
-            <input type="text" id="aadhaar" name="aadhaar" required>
+        <div id="otp_section" style="display:none;">
+            <label for="otp">Enter OTP:</label>
+            <input type="text" id="otp" required>
+            <button onclick="verifyOTP()">Verify OTP</button>
+        </div>
 
-            <button type="submit">Verify</button>
-        </form>
+        <p id="message"></p>
     </div>
 </body>
 </html>

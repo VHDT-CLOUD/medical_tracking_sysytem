@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient List - Medical Tracking System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Medical Tracking System</div>
+            <div class="nav-links">
+                <a href="/patient-list">Patients</a>
+                <a href="#" id="logout-link">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1>Hospital Dashboard</h1>
+        <p>Welcome to the hospital dashboard. Here you can view and manage patient records.</p>
+        
+        <div class="patient-list">
+            <h2>Patient List</h2>
+            <div id="loading-message">Loading patients...</div>
+            <div id="error-message" class="error-message" style="display: none;"></div>
+            
+            <table class="patient-table" id="patient-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Aadhaar Number</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="patient-list-body">
+                    <!-- Patient data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const patientTable = document.getElementById('patient-table');
+            const patientListBody = document.getElementById('patient-list-body');
+            const loadingMessage = document.getElementById('loading-message');
+            const errorMessage = document.getElementById('error-message');
+            const logoutLink = document.getElementById('logout-link');
+            
+            // Fetch patients from server
+            fetchPatients();
+            
+            // Logout functionality
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                fetch('/logout')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Logout error:', error);
+                    });
+            });
+            
+            function fetchPatients() {
+                fetch('/patients')
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                // Unauthorized, redirect to login
+                                window.location.href = '/';
+                                throw new Error('Please log in to access this page');
+                            }
+                            throw new Error('Failed to fetch patients');
+                        }
+                        return response.json();
+                    })
+                    .then(patients => {
+                        loadingMessage.style.display = 'none';
+                        
+                        if (patients.length === 0) {
+                            errorMessage.textContent = 'No patients found.';
+                            errorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Display patients in table
+                        patientTable.style.display = 'table';
+                        renderPatientList(patients);
+                    })
+                    .catch(error => {
+                        loadingMessage.style.display = 'none';
+                        errorMessage.textContent = error.message;
+                        errorMessage.style.display = 'block';
+                        console.error('Error fetching patients:', error);
+                    });
+            }
+            
+            function renderPatientList(patients) {
+                patientListBody.innerHTML = '';
+                
+                patients.forEach(patient => {
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>${patient.id}</td>
+                        <td>${patient.name}</td>
+                        <td>${patient.aadhaar}</td>
+                        <td>
+                            <a href="/patient-dashboard?id=${patient.id}" class="btn">View Details</a>
+                        </td>
+                    `;
+                    
+                    patientListBody.appendChild(row);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

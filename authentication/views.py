@@ -50,3 +50,4 @@ def verify_otp(request):
             return JsonResponse({"message": "OTP verified successfully"})
         
         return JsonResponse({"error": "Invalid OTP"}, status=400)
+z

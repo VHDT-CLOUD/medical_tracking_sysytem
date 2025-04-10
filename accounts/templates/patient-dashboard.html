@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Medical Tracking System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">Medical Tracking System</div>
+            <div class="nav-links">
+                <a href="/patient-list">Back to Patients</a>
+                <a href="#" id="logout-link">Logout</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="loading-message">Loading patient data...</div>
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        
+        <div id="patient-dashboard" style="display: none;">
+            <div class="patient-card">
+                <div class="patient-info">
+                    <div>
+                        <h1 id="patient-name"></h1>
+                        <p id="patient-aadhaar" class="patient-aadhaar"></p>
+                    </div>
+                    <div>
+                        <button class="btn" id="add-history-btn">Add Medical Record</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h2>Medical History</h2>
+                    <div id="patient-history">
+                        <!-- Medical history will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Medical Record Form (Hidden by default) -->
+        <div id="add-history-form" class="form-container" style="display: none;">
+            <h2 class="form-title">Add Medical Record</h2>
+            
+            <form id="history-form">
+                <div class="form-group">
+                    <label for="medical-record">Medical Record</label>
+                    <textarea id="medical-record" class="form-control" rows="4" placeholder="Enter medical record details" required></textarea>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between;">
+                    <button type="button" class="btn" id="cancel-btn" style="background-color: #7f8c8d;">Cancel</button>
+                    <button type="submit" class="btn">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const patientDashboard = document.getElementById('patient-dashboard');
+            const loadingMessage = document.getElementById('loading-message');
+            const errorMessage = document.getElementById('error-message');
+            const patientName = document.getElementById('patient-name');
+            const patientAadhaar = document.getElementById('patient-aadhaar');
+            const patientHistory = document.getElementById('patient-history');
+            const addHistoryBtn = document.getElementById('add-history-btn');
+            const addHistoryForm = document.getElementById('add-history-form');
+            const historyForm = document.getElementById('history-form');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const logoutLink = document.getElementById('logout-link');
+            
+            // Get patient ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('id');
+            
+            if (!patientId) {
+                loadingMessage.style.display = 'none';
+                errorMessage.textContent = 'Patient ID is required';
+                errorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Fetch patient data
+            fetchPatientData(patientId);
+            
+            // Logout functionality
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                fetch('/logout')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = '/';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Logout error:', error);
+                    });
+            });
+            
+            // Add history button click
+            addHistoryBtn.addEventListener('click', function() {
+                patientDashboard.style.display = 'none';
+                addHistoryForm.style.display = 'block';
+            });
+            
+            // Cancel button click
+            cancelBtn.addEventListener('click', function() {
+                addHistoryForm.style.display = 'none';
+                patientDashboard.style.display = 'block';
+                historyForm.reset();
+            });
+            
+            // History form submit
+            historyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const medicalRecord = document.getElementById('medical-record').value;
+                
+                // In a real application, you would send this to the server
+                // For this example, we'll just update the UI
+                
+                // Get existing history
+                let history = patientHistory.getAttribute('data-history') || '';
+                
+                // Add new record with current date
+                const now = new Date();
+                const dateStr = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+                const newRecord = `${medicalRecord} - ${dateStr}`;
+                
+                if (history) {
+                    history = newRecord + ', ' + history;
+                } else {
+                    history = newRecord;
+                }
+                
+                // Update UI
+                patientHistory.setAttribute('data-history', history);
+                renderPatientHistory(history);
+                
+                // Hide form and show dashboard
+                addHistoryForm.style.display = 'none';
+                patientDashboard.style.display = 'block';
+                historyForm.reset();
+                
+                // In a real application, you would update the server here
+                alert('Medical record added successfully!');
+            });
+            
+            function fetchPatientData(id) {
+                fetch(`/patient/${id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                // Unauthorized, redirect to login
+                                window.location.href = '/';
+                                throw new Error('Please log in to access this page');
+                            } else if (response.status === 404) {
+                                throw new Error('Patient not found');
+                            }
+                            throw new Error('Failed to fetch patient data');
+                        }
+                        return response.json();
+                    })
+                    .then(patient => {
+                        loadingMessage.style.display = 'none';
+                        patientDashboard.style.display = 'block';
+                        
+                        // Display patient data
+                        patientName.textContent = patient.name;
+                        patientAadhaar.textContent = `Aadhaar: ${patient.aadhaar}`;
+                        
+                        // Store history in data attribute
+                        patientHistory.setAttribute('data-history', patient.history || '');
+                        
+                        // Render patient history
+                        renderPatientHistory(patient.history);
+                    })
+                    .catch(error => {
+                        loadingMessage.style.display = 'none';
+                        errorMessage.textContent = error.message;
+                        errorMessage.style.display = 'block';
+                        console.error('Error fetching patient data:', error);
+                    });
+            }
+            
+            function renderPatientHistory(history) {
+                patientHistory.innerHTML = '';
+                
+                if (!history) {
+                    patientHistory.innerHTML = '<p>No medical history available.</p>';
+                    return;
+                }
+                
+                // Split history by comma if it's a comma-separated string
+                const historyItems = history.split(',').map(item => item.trim());
+                
+                historyItems.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.textContent = item;
+                    patientHistory.appendChild(historyItem);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

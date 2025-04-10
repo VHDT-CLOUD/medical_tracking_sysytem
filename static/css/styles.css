@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    animation: backgroundFade 3s infinite alternate;
 }
 
 /* Container for Forms */
@@ -113,3 +114,13 @@ nav a:hover {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+@keyframes backgroundFade {
+    from {
+        background: linear-gradient(135deg, #74ebd5, #acb6e5);
+    }
+    to {
+        background: linear-gradient(135deg, #acb6e5, #74ebd5);
+    }
+}

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Hospital Login{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Hospital Login</h2>
+    
+    {% if error %}
+        <div class="message error">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'accounts:hospital_login' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="hospital_id">Select Hospital</label>
+            <select name="hospital_id" id="hospital_id" required>
+                <option value="">Select a hospital</option>
+                {% for hospital in hospitals %}
+                    <option value="{{ hospital.id }}">{{ hospital.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="registration_number">Registration Number</label>
+            <input type="text" id="registration_number" name="registration_number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px;">
+        <p>Don't have an account? <a href="{% url 'accounts:hospital_register' %}">Register here</a></p>
+        <p><a href="{% url 'accounts:reset_password' %}">Forgot Password?</a></p>
+    </div>
+</div>
+{% endblock %}

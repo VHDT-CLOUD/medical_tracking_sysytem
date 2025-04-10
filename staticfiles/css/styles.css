@@ -13,10 +13,10 @@ body {
 /* Container for Forms */
 .container {
     background: white;
-    padding: 40px;  /* Increased padding for better spacing */
+    padding: 30px;
     border-radius: 12px;
     box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-    width: 400px;  /* Increased width for better form layout */
+    width: 350px;
     text-align: center;
     animation: fadeIn 0.5s ease-in-out;
 }
@@ -24,11 +24,11 @@ body {
 /* Input Fields */
 input, select {
     width: 100%;
-    padding: 14px;
-    margin: 12px 0;
+    padding: 12px;
+    margin: 10px 0;
     border: 1px solid #ddd;
     border-radius: 8px;
-    font-size: 18px;
+    font-size: 16px;
     transition: 0.3s;
 }
 
@@ -42,18 +42,13 @@ input:focus, select:focus {
 button {
     background: linear-gradient(90deg, #007bff, #00c6ff);
     color: white;
-    padding: 14px;
+    padding: 12px;
     border: none;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 16px;
     border-radius: 8px;
     width: 100%;
     transition: all 0.3s ease-in-out;
-}
-
-/* Fix Button Spacing */
-button#get-otp {
-    margin-bottom: 20px; /* Increased space below Get OTP button */
 }
 
 button:hover {
@@ -71,7 +66,7 @@ header {
 }
 
 header h1 {
-    font-size: 26px;
+    font-size: 24px;
     color: white;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
@@ -118,18 +113,3 @@ nav a:hover {
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Additional Spacing for Links */
-.container a {
-    display: block;
-    margin-top: 15px; /* Added space above the login link */
-    color: #007bff;
-    text-decoration: none;
-    transition: 0.3s;
-}
-
-.container a:hover {
-    text-decoration: underline;
-    color: #0056b3;
-}

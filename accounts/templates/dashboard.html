@@ -1,28 +1,393 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Medical Dashboard</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+    
+        .container {
+        
+             background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 100%;
+            max-width: 700px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .user-info {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .user-info h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #555;
+        }
+        .action-buttons {
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: black;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+        }
+        .medical-records {
+            margin-top: 40px;
+        }
+        .record-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .record-date {
+            color: #666;
+            font-size: 14px;
+        }
+        .record-hospital {
+            font-weight: bold;
+            color: #333;
+        }
+        .record-doctor {
+            color: #555;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .record-details {
+            margin-top: 10px;
+        }
+        .record-section {
+            margin-bottom: 10px;
+        }
+        .record-label {
+            font-weight: bold;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Dashboard</h2>
-        <p>Welcome, {{ user.aadhaar }}</p>
-        
-        <h3>Medical Records</h3>
-        <ul>
-            {% for record in medical_records %}
-                <li>{{ record.date }} - {{ record.description }}</li>
-            {% empty %}
-                <li>No records found</li>
-            {% endfor %}
-        </ul>
+    <div class="container" id="dashboard">
+        <div class="header">
+            <h2>Medical Dashboard</h2>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
 
-       <a href="{% url 'accounts:logout' %}">Logout</a>
+        <div class="user-info">
+            <h3>Personal Information</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Name:
+                    {{ personal_info.name }}</div>  <!-- This displays the username field (full name) from registration -->
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Aadhaar Number:
+                    {{ user.aadhaar_number }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Email:
+                    {{ user.email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Phone:
+                    {{ user.phone }} </div>
+                </div>
+                {% if patient %}
+                <div class="info-item">
+                    <div class="info-label">Date of Birth:
+                    {{ patient.date_of_birth }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Hospital:</div>
+                    <div>{{ patient.hospital.name|default:"Not assigned" }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
 
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="addRecordBtn">Add Medical Record</button>
+        </div>
+
+        <div class="medical-records">
+            <h3>Medical Records</h3>
+            {% if medical_records %}
+                {% for record in medical_records %}
+                <div class="record-card">
+                    <div class="record-header">
+                        <div class="record-hospital">{{ record.hospital_name }}</div>
+                        <div class="record-date">{{ record.created_at|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="record-doctor">Dr. {{ record.doctor_name }}</div>
+                    <div class="record-details">
+                        <div class="record-section">
+                            <span class="record-label">Diagnosis:</span> {{ record.diagnosis }}
+                        </div>
+                        <div class="record-section">
+                            <span class="record-label">Prescription:</span> {{ record.prescription }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No medical records found.</p>
+            {% endif %}
+        </div>
     </div>
+
+    <!-- Medical Record Modal -->
+<div id="medicalRecordModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Add Medical Record</h3>
+        <form id="medicalRecordForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="hospital">Hospital Name:</label>
+                <textarea id="hospital" name="hospital" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="doctor">Doctor Name:</label>
+                <textarea id="doctor" name="doctor" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="diagnosis">Diagnosis:</label>
+                <textarea id="diagnosis" name="diagnosis" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="prescription">Prescription:</label>
+                <textarea id="prescription" name="prescription" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="record_date">Date:</label>
+                <input type="date" id="record_date" name="record_date" required>
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="document">Upload Document:</label>
+                <input type="file" id="document" name="document">
+            </div>
+            <div class="form-group">
+                <label for="date_of_appointment">Date of Appointment:</label>
+                <input type="date" id="date_of_appointment" name="date_of_appointment" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Record</button>
+        </form>
+    </div>
+</div>
+
+    <script>
+        const modal = document.getElementById("medicalRecordModal");
+        const addRecordBtn = document.getElementById("addRecordBtn");
+        const closeBtn = document.getElementsByClassName("close")[0];
+        const form = document.getElementById("medicalRecordForm");
+
+        document.getElementById("record_date").valueAsDate = new Date();
+
+        addRecordBtn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+        closeBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        form.addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch("/accounts/add_medical_record/", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert("Medical record added successfully!");
+                    modal.style.display = "none";
+                    window.location.reload();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred. Please try again.");
+            });
+        });
+
+        function logout() {
+            fetch("/accounts/logout/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "X-CSRFToken": getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = "/accounts/login/";
+                } else {
+                    alert("Logout failed. Try again.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.getElementById('hospital').addEventListener('change', function() {
+            const hospitalId = this.value;
+            if (hospitalId) {
+                fetch(`/accounts/get_doctors/?hospital_id=${hospitalId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const doctorSelect = document.getElementById('doctor');
+                        doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
+
+                        data.doctors.forEach(doctor => {
+                            const option = document.createElement('option');
+                            option.value = doctor.id;
+                            option.textContent = `Dr. ${doctor.name} (${doctor.specialization})`;
+                            doctorSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+        });
+    </script>
 </body>
 </html>

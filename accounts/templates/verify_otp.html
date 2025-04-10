@@ -1,64 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify OTP</title>
 </head>
 <body>
-    <div>
-        <h2>OTP Verification</h2>
-        <label for="aadhaar">Enter Aadhaar:</label>
-        <input type="text" id="aadhaar" required>
-        <button onclick="sendOTP()">Send OTP</button>
-
-        <div id="otp_section" style="display:none;">
-            <label for="otp">Enter OTP:</label>
-            <input type="text" id="otp" required>
-            <button onclick="verifyOTP()">Verify OTP</button>
-        </div>
-
-        <p id="message"></p>
-    </div>
-
-    <script>
-        function sendOTP() {
-            var aadhaar = document.getElementById("aadhaar").value;
-
-            fetch("/aadhaar-verification/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "aadhaar_number=" + aadhaar
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message) {
-                    alert(data.message);
-                    document.getElementById("otp_section").style.display = "block";
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        }
-
-        function verifyOTP() {
-            var otp = document.getElementById("otp").value;
-
-            fetch("/verify-otp/", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "otp=" + otp
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("OTP Verified Successfully! Redirecting...");
-                    window.location.href = data.redirect;
-                } else {
-                    alert("Invalid OTP. Try again.");
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        }
-    </script>
+    <h1>Verify OTP</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="aadhaar_number">Aadhaar Number:</label>
+        <input type="text" id="aadhaar_number" name="aadhaar_number" required><br>
+        <label for="otp">OTP:</label>
+        <input type="text" id="otp" name="otp" required><br>
+        <button type="submit">Verify OTP</button>
+    </form>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>

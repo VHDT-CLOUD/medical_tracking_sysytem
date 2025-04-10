@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Hospital Registration{% endblock %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 800px;
+        margin: 2rem auto;
+        min-height: auto;
+    }
+    
+    .login-type-selector {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .login-type-selector button {
+        flex: 1;
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center">Hospital Registration</h2>
+    
+    <div class="login-type-selector">
+        <button class="btn btn-secondary" onclick="window.location.href='/accounts/register/'">Patient Registration</button>
+        <button class="btn btn-primary">Hospital Registration</button>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="POST" action="{% url 'accounts:hospital_register' %}" id="registrationForm">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="name">Hospital Name</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="registration_number">Registration Number</label>
+            <input type="text" id="registration_number" name="registration_number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone_number">Phone Number</label>
+            <input type="tel" id="phone_number" name="phone_number" required>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Address</label>
+            <textarea id="address" name="address" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="website">Website (Optional)</label>
+            <input type="url" id="website" name="website">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description (Optional)</label>
+            <textarea id="description" name="description"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+            <small class="text-muted">Password must be at least 8 characters long and include uppercase, lowercase, numbers, and special characters.</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-block">Register Hospital</button>
+    </form>
+    
+    <div class="form-footer">
+        <p>Already have an account? <a href="{% url 'accounts:hospital_login' %}">Login here</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+            return;
+        }
+        
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordPattern.test(password)) {
+            e.preventDefault();
+            alert('Password must be at least 8 characters long and include uppercase and lowercase letters, numbers, and special characters.');
+            return;
+        }
+    });
+</script>
+{% endblock %} 
